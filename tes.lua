@@ -1006,7 +1006,6 @@ Useskills = function(I, e)
 				vim1:SendKeyEvent(true, "X", false, game);
 				vim1:SendKeyEvent(false, "X", false, game);
 			end;
-		end;
 		if I == "nil" and e == "Y" then
 			vim1:SendKeyEvent(true, "Y", false, game);
 			vim1:SendKeyEvent(false, "Y", false, game);
