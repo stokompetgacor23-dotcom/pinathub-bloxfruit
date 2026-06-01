@@ -3182,6 +3182,7 @@ Farm:AddToggle({
 	Default = GetSetting("AutoAttack_Save", true),
 	Callback = function(I)
 		_G.Seriality = I
+		getgenv().PMT_GunFast = I
         -- 2. Save
         _G.SaveData["AutoAttack_Save"] = I
         SaveSettings()
