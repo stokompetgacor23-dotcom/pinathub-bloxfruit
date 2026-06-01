@@ -82,13 +82,13 @@ end)
 -- ========================================
 -- AUTO TEAM & LIGHTING
 -- ========================================
-local desiredTeam = "Marines"
-
-if not player.Team or player.Team.Name ~= desiredTeam then
-    pcall(function()
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", desiredTeam)
-    end)
-end
+-- local desiredTeam = "Marines"
+-- 
+-- if not player.Team or player.Team.Name ~= desiredTeam then
+--     pcall(function()
+--         ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", desiredTeam)
+--     end)
+-- end
 
 local Lighting = Services.Lighting
 
@@ -593,7 +593,7 @@ _G = _G or {}
 _B = false
 PosMon = nil
 
-_G.BringRange = _G.BringRange or 250
+_G.BringRange = _G.BringRange or 400
 _G.MaxBringMobs = _G.MaxBringMobs or 15 -- MOB LIMIT
 
 _G.FarmPriorityElf = _G.FarmPriorityElf or false
@@ -601,7 +601,7 @@ _G.FarmMastery_S   = _G.FarmMastery_S or false
 
 local TweenService = game:GetService("TweenService")
 local TweenInfoBring = TweenInfo.new(
-    0.50, -- tween speed
+    0.40, -- tween speed
     Enum.EasingStyle.Linear,
     Enum.EasingDirection.Out
 )
