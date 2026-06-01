@@ -672,6 +672,11 @@ BringEnemy = function()
     local hrp = char and char:FindFirstChild("HumanoidRootPart")  
     if not hrp then return end  
 
+    -- Guard: Don't bring enemies while taking quest
+    if PosQ and (hrp.Position - PosQ.Position).Magnitude < 50 then
+        return
+    end
+
     -- Simulation Radius  
     pcall(function()  
         sethiddenproperty(plr, "SimulationRadius", math.huge)  
@@ -1109,6 +1114,13 @@ task.spawn(function()
 				if e then
 					if e:FindFirstChild("Humanoid") then
 						e.Humanoid.AutoRotate = false
+						for _, track in pairs(e.Humanoid:GetPlayingAnimationTracks()) do
+							track:Stop()
+						end
+					end
+					local animate = e:FindFirstChild("Animate")
+					if animate then
+						animate.Enabled = false
 					end
 					for _, v in pairs(e:GetChildren()) do
 						if v:IsA("BasePart") then
@@ -1124,6 +1136,12 @@ task.spawn(function()
 				if e then
 					if e:FindFirstChild("Humanoid") then
 						e.Humanoid.AutoRotate = true
+					end
+					if not _G.NoAni then
+						local animate = e:FindFirstChild("Animate")
+						if animate then
+							animate.Enabled = true
+						end
 					end
 					for _, v in pairs(e:GetChildren()) do
 						if v:IsA("BasePart") then
@@ -9650,39 +9668,36 @@ Player:AddToggle({
 });
 Player:AddSection({"Tween & Farm Settings"})
 
-Player:AddTextBox({
+Player:AddSlider({
     Name = "Tween Speed (Far)",
     Description = "Speed for distance > 15 studs",
-    PlaceHolder = "370",
-    Default = tostring(getgenv().TweenSpeedFar or 370),
+    Min = 0,
+    Max = 1000,
+    Default = getgenv().TweenSpeedFar or 370,
     Callback = function(Value)
-        if tonumber(Value) then
-            getgenv().TweenSpeedFar = tonumber(Value)
-        end
+        getgenv().TweenSpeedFar = Value
     end
 })
 
-Player:AddTextBox({
+Player:AddSlider({
     Name = "Tween Speed (Near)",
     Description = "Speed for distance <= 15 studs",
-    PlaceHolder = "370",
-    Default = tostring(getgenv().TweenSpeedNear or 370),
+    Min = 0,
+    Max = 1000,
+    Default = getgenv().TweenSpeedNear or 370,
     Callback = function(Value)
-        if tonumber(Value) then
-            getgenv().TweenSpeedNear = tonumber(Value)
-        end
+        getgenv().TweenSpeedNear = Value
     end
 })
 
-Player:AddTextBox({
+Player:AddSlider({
     Name = "Farm Height",
     Description = "Height above mob while farming",
-    PlaceHolder = "30",
-    Default = tostring(_G.MobHeight or 30),
+    Min = 0,
+    Max = 100,
+    Default = _G.MobHeight or 30,
     Callback = function(Value)
-        if tonumber(Value) then
-            _G.MobHeight = tonumber(Value)
-        end
+        _G.MobHeight = Value
     end
 })
 
@@ -11935,21 +11950,24 @@ local AnimConnection
 local function EnableNoAni(char)
 	local humanoid = char:WaitForChild("Humanoid")
 	local animate = char:FindFirstChild("Animate")
-	if animate then
-		animate.Enabled = false
-	end
 
-	-- stop running animations
-	for _,track in pairs(humanoid:GetPlayingAnimationTracks()) do
-		track:Stop()
-	end
-
-	-- block new animations
+	-- block animations
+	if AnimConnection then AnimConnection:Disconnect() end
 	AnimConnection = humanoid.AnimationPlayed:Connect(function(track)
-		if _G.NoAni then
+		if _G.NoAni or (getgenv()).OnFarm then
+			if animate then animate.Enabled = false end
 			track:Stop()
+		else
+			if animate and not _G.NoAni then animate.Enabled = true end
 		end
 	end)
+
+	if _G.NoAni or (getgenv()).OnFarm then
+		if animate then animate.Enabled = false end
+		for _,track in pairs(humanoid:GetPlayingAnimationTracks()) do
+			track:Stop()
+		end
+	end
 end
 
 local function DisableNoAni()
@@ -11967,9 +11985,7 @@ end
 
 -- Monitor character
 local function SetupChar(char)
-	if _G.NoAni then
-		EnableNoAni(char)
-	end
+	EnableNoAni(char)
 end
 
 if player.Character then
