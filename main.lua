@@ -105,19 +105,19 @@ Lighting.FogEnd = 1e10
 do
     ply = Services.Players
     plr = ply.LocalPlayer
-    Root = plr.Character.HumanoidRootPart
+    -- REMOVED: Root = plr.Character.HumanoidRootPart (moved after character loads)
     replicated = Services.ReplicatedStorage
-    Lv = plr.Data.Level.Value
+    -- REMOVED: Lv = plr.Data.Level.Value (moved after character loads)
     TeleportService = Services.TeleportService
     TW = Services.TweenService
     Lighting = Services.Lighting
     Enemies = workspace.Enemies
     vim1 = Services.VirtualInputManager
     vim2 = Services.VirtualUser
-    TeamSelf = plr.Team
+    -- REMOVED: TeamSelf = plr.Team (moved after character loads)
     RunSer = Services.RunService
     Stats = Services.Stats
-    Energy = plr.Character.Energy.Value
+    -- REMOVED: Energy = plr.Character.Energy.Value (moved after character loads)
     
     -- Tables
     Boss = {}
@@ -138,12 +138,24 @@ do
     Num_self = 25
 end
 
+-- Wait for character to load before accessing character-dependent variables
+local character = plr.Character or plr.CharacterAdded:Wait()
+character:WaitForChild("HumanoidRootPart")
+character:WaitForChild("Energy")
+
+-- Now assign character-dependent variables safely
+Root = character.HumanoidRootPart
+Energy = character.Energy.Value
+TeamSelf = plr.Team
+Lv = plr.Data.Level.Value  -- Data might also need waiting
+
 -- Wait for game to load
 repeat
     local loading = plr.PlayerGui:FindFirstChild("Main")
     loading = loading and loading:FindFirstChild("Loading")
     task.wait()
 until game:IsLoaded() and not (loading and loading.Visible)
+
 -- World Detection (Optimized)
 local placeId = game.PlaceId
 if placeId == 2753915549 or placeId == 85211729168715 then
