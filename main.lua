@@ -80,6 +80,26 @@ task.spawn(function()
 end)
 
 -- ========================================
+-- AUTO TEAM & LIGHTING
+-- ========================================
+local desiredTeam = "Marines"
+
+if not player.Team or player.Team.Name ~= desiredTeam then
+    pcall(function()
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", desiredTeam)
+    end)
+end
+
+local Lighting = Services.Lighting
+
+-- Full bright (optimized lighting)
+Lighting.Ambient = Color3.new(0.3, 0.3, 0.3)
+Lighting.ColorShift_Bottom = Color3.new(0.3, 0.3, 0.3)
+Lighting.ColorShift_Top = Color3.new(0.3, 0.3, 0.3)
+Lighting.Brightness = 2
+Lighting.FogEnd = 1e10
+
+-- ========================================
 -- GLOBAL VARIABLES (Cached & Organized)
 -- ========================================
 do
