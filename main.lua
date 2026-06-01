@@ -2347,12 +2347,19 @@ QuestNeta = function()
 			[6] = PosQ,
 		};
 	end;
-	local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/xRedzLib.lua"))():MakeWindow({
+	local RedzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/xRedzLib.lua"))()
+
+	-- The library has a typo (Comnection instead of Connection) in its SetTheme method.
+	-- We use pcall to ensure the script continues even if the library's internal theme logic errors.
+	pcall(function()
+		RedzLib:SetTheme("Dark")
+	end)
+
+	local Library = RedzLib:MakeWindow({
     Title = "PinatHub",
     SubTitle = "Blox Fruit",
     SaveFolder = "pinathub.json"
 })
-Library:SetTheme("Dark")
 -- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ControlGUI"
