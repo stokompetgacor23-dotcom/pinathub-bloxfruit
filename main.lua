@@ -2352,6 +2352,7 @@ QuestNeta = function()
     SubTitle = "Blox Fruit",
     SaveFolder = "pinathub.json"
 })
+Library:SetTheme("Dark")
 -- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ControlGUI"
@@ -12083,7 +12084,7 @@ end
 n:WaitForChild("RE/RegisterHit"):FireServer(unpack(a))
 end
 end
-spawn(function()while task.wait()do AttackAll()end end)
+spawn(function()while task.wait()do if _G.Seriality then AttackAll()end end end)
 
 local Players=game:GetService("Players")
 local RunService=game:GetService("RunService")
@@ -12258,7 +12259,7 @@ end
 end
 
 local AttackInstance=FastAttack.new()
-table.insert(AttackInstance.Connections,RunService.Stepped:Connect(function()AttackInstance:Attack()end))
+table.insert(AttackInstance.Connections,RunService.Stepped:Connect(function()if _G.Seriality then AttackInstance:Attack()end end))
 
 RunService.Heartbeat:Connect(function()
 if not getgenv().PMT_GunFast then return end
@@ -12274,7 +12275,9 @@ if typeof(v)=="function" and iscclosure(v) then
 local n=debug.getinfo(v).name
 if n=="Attack" or n=="attack" or n=="RegisterHit" then
 hookfunction(v,function(...)
+if _G.Seriality then
 AttackInstance:Attack()
+end
 return v(...)
 end)
 end
@@ -12318,10 +12321,12 @@ Register_Hit:FireServer(unpack(args))
 end
 spawn(function()
 while task.wait(0.05) do
+if _G.Seriality then
 pcall(function()
 local ch=game.Players.LocalPlayer.Character
 local t=ch and ch:FindFirstChildOfClass("Tool")
 if t then Funcs:Attack() end
 end)
+end
 end
 end)
