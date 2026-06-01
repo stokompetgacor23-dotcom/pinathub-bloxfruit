@@ -593,7 +593,7 @@ _G = _G or {}
 _B = false
 PosMon = nil
 
-_G.BringRange = _G.BringRange or 400
+_G.BringRange = _G.BringRange or 270
 _G.MaxBringMobs = _G.MaxBringMobs or 15 -- MOB LIMIT
 
 _G.FarmPriorityElf = _G.FarmPriorityElf or false
