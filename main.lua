@@ -1107,9 +1107,14 @@ task.spawn(function()
 
 				local e = I.Character;
 				if e then
+					if e:FindFirstChild("Humanoid") then
+						e.Humanoid.AutoRotate = false
+					end
 					for _, v in pairs(e:GetChildren()) do
 						if v:IsA("BasePart") then
 							v.CanCollide = false;
+							v.AssemblyLinearVelocity = Vector3.new(0, 0, 0);
+							v.AssemblyAngularVelocity = Vector3.new(0, 0, 0);
 						end;
 					end;
 				end;
@@ -1117,6 +1122,9 @@ task.spawn(function()
 			else
 				local e = I.Character;
 				if e then
+					if e:FindFirstChild("Humanoid") then
+						e.Humanoid.AutoRotate = true
+					end
 					for _, v in pairs(e:GetChildren()) do
 						if v:IsA("BasePart") then
 							v.CanCollide = true;
@@ -1136,13 +1144,17 @@ end);
 getgenv().TweenSpeedFar = 370   -- Default Speed (Far)
 getgenv().TweenSpeedNear = 370  -- Boost Speed (Near <= 15 studs)
 
-_tp = function(I)
+_tp = function(Target)
 local e = plr.Character;
 if not e or not e:FindFirstChild("HumanoidRootPart") then
 return;
 end;
 
 local HRP = e.HumanoidRootPart;  
+
+if (Target.Position - HRP.Position).Magnitude < 0.1 then
+	return
+end
 
 -- Disable farm while tweening  
 shouldTween = true  
@@ -1154,7 +1166,7 @@ if HRP.Anchored then
 	task.wait()  
 end  
 
-local dist = (I.Position - HRP.Position).Magnitude  
+local dist = (Target.Position - HRP.Position).Magnitude
 
 -- ===============================  
 --  IF DISTANCE <= 15 STUDS → USE CLOSE SPEED
@@ -1163,11 +1175,11 @@ local dist = (I.Position - HRP.Position).Magnitude
 local speed = dist <= 15 and (getgenv().TweenSpeedNear or 370) or (getgenv().TweenSpeedFar or 370)
 
 local info = TweenInfo.new(dist / speed, Enum.EasingStyle.Linear)  
-local tween = game:GetService("TweenService"):Create(C, info, { CFrame = I })  
+local tween = game:GetService("TweenService"):Create(C, info, { CFrame = Target })
 
 -- If sitting  
 if e.Humanoid.Sit == true then  
-	C.CFrame = CFrame.new(C.Position.X, I.Y, C.Position.Z)  
+	C.CFrame = CFrame.new(C.Position.X, Target.Position.Y, C.Position.Z)
 end  
 
 tween:Play()  
@@ -4492,30 +4504,6 @@ Setting:AddTextBox({
     end
 })
 
-Setting:AddTextBox({
-    Title = "Select Farm Height",
-    Description = "height to stand above",
-    PlaceHolder = "30",
-    Default = tostring(_G.MobHeight),
-    Callback = function(Value)
-        local num = tonumber(Value)
-        if num and num > 0 then
-            _G.MobHeight = num
-        end
-    end
-})
-
-Setting:AddTextBox({
-    Title = "Tween Speed",
-    Description = "tween speed",
-    PlaceHolder = "370",
-    Default = "370",
-    Callback = function(I)
-        if tonumber(I) then
-            getgenv().TweenSpeedFar = tonumber(I)
-        end
-    end,
-});
 Others:AddSection({"Fishing"})
 -- =========================================================
 -- NEW FISHING SYSTEM (WITH INTEGRATED SAVE SYSTEM)
@@ -9660,6 +9648,44 @@ Player:AddToggle({
 		end;
 	end,
 });
+Player:AddSection({"Tween & Farm Settings"})
+
+Player:AddTextBox({
+    Name = "Tween Speed (Far)",
+    Description = "Speed for distance > 15 studs",
+    PlaceHolder = "370",
+    Default = tostring(getgenv().TweenSpeedFar or 370),
+    Callback = function(Value)
+        if tonumber(Value) then
+            getgenv().TweenSpeedFar = tonumber(Value)
+        end
+    end
+})
+
+Player:AddTextBox({
+    Name = "Tween Speed (Near)",
+    Description = "Speed for distance <= 15 studs",
+    PlaceHolder = "370",
+    Default = tostring(getgenv().TweenSpeedNear or 370),
+    Callback = function(Value)
+        if tonumber(Value) then
+            getgenv().TweenSpeedNear = tonumber(Value)
+        end
+    end
+})
+
+Player:AddTextBox({
+    Name = "Farm Height",
+    Description = "Height above mob while farming",
+    PlaceHolder = "30",
+    Default = tostring(_G.MobHeight or 30),
+    Callback = function(Value)
+        if tonumber(Value) then
+            _G.MobHeight = tonumber(Value)
+        end
+    end
+})
+
 Player:AddSection({"Settings Combat / Aimbot Settings"});
 Player:AddToggle({
 	Name = "Ignore Same Teams",
@@ -11908,6 +11934,10 @@ local AnimConnection
 
 local function EnableNoAni(char)
 	local humanoid = char:WaitForChild("Humanoid")
+	local animate = char:FindFirstChild("Animate")
+	if animate then
+		animate.Enabled = false
+	end
 
 	-- stop running animations
 	for _,track in pairs(humanoid:GetPlayingAnimationTracks()) do
@@ -11923,6 +11953,12 @@ local function EnableNoAni(char)
 end
 
 local function DisableNoAni()
+	if plr.Character then
+		local animate = plr.Character:FindFirstChild("Animate")
+		if animate then
+			animate.Enabled = true
+		end
+	end
 	if AnimConnection then
 		AnimConnection:Disconnect()
 		AnimConnection = nil
