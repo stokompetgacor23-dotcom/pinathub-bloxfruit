@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
 local SilentAim_Enabled = false
@@ -174,67 +175,184 @@ pcall(function()
     setreadonly(mt, true)
 end)
 
--- ================= GUI =================
+-- ================= MODERN GUI =================
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local TitleBar = Instance.new("Frame")
+local TitleBarCorner = Instance.new("UICorner")
 local Title = Instance.new("TextLabel")
-local ToggleBtn = Instance.new("TextButton")
 local CloseBtn = Instance.new("TextButton")
+local ContentFrame = Instance.new("Frame")
+local ToggleBtn = Instance.new("TextButton")
+local ToggleBtnCorner = Instance.new("UICorner")
+local ToggleIndicator = Instance.new("Frame")
+local ToggleIndicatorCorner = Instance.new("UICorner")
 
-ScreenGui.Name = "AimbotSkillGui"
+ScreenGui.Name = "AimbotSkillGuiModern"
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ResetOnSpawn = false
 
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.Position = UDim2.new(0.5, -110, 0.5, -60)
+MainFrame.Size = UDim2.new(0, 220, 0, 120)
 MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
-MainFrame.Size = UDim2.new(0, 200, 0, 100)
-MainFrame.Active = true
-MainFrame.Draggable = true
+
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+UIStroke.Color = Color3.fromRGB(40, 40, 40)
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
+
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = MainFrame
+TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleBar.Size = UDim2.new(1, 0, 0, 35)
+TitleBar.BorderSizePixel = 0
+
+TitleBarCorner.CornerRadius = UDim.new(0, 10)
+TitleBarCorner.Parent = TitleBar
+
+-- Patch to hide bottom corners of title bar
+local TitleBarBottomMask = Instance.new("Frame")
+TitleBarBottomMask.Name = "BottomMask"
+TitleBarBottomMask.Parent = TitleBar
+TitleBarBottomMask.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleBarBottomMask.BorderSizePixel = 0
+TitleBarBottomMask.Position = UDim2.new(0, 0, 1, -5)
+TitleBarBottomMask.Size = UDim2.new(1, 0, 0, 5)
 
 Title.Name = "Title"
-Title.Parent = MainFrame
-Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-Title.BorderSizePixel = 0
-Title.Size = UDim2.new(1, 0, 0, 25)
-Title.Font = Enum.Font.SourceSansBold
-Title.Text = "Pinat Aimbot Skill"
+Title.Parent = TitleBar
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "Aimbot Skill"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 14
-
-ToggleBtn.Name = "ToggleBtn"
-ToggleBtn.Parent = MainFrame
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-ToggleBtn.Position = UDim2.new(0.1, 0, 0.4, 0)
-ToggleBtn.Size = UDim2.new(0.8, 0, 0, 30)
-ToggleBtn.Font = Enum.Font.SourceSans
-ToggleBtn.Text = "Aimbot: OFF"
-ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleBtn.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
 CloseBtn.Name = "CloseBtn"
-CloseBtn.Parent = MainFrame
-CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-CloseBtn.Position = UDim2.new(0.85, 0, 0, 0)
-CloseBtn.Size = UDim2.new(0.15, 0, 0, 25)
-CloseBtn.Font = Enum.Font.SourceSansBold
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.TextSize = 14
+CloseBtn.Parent = TitleBar
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Position = UDim2.new(1, -35, 0, 0)
+CloseBtn.Size = UDim2.new(0, 35, 1, 0)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+CloseBtn.TextSize = 20
 
-ToggleBtn.MouseButton1Click:Connect(function()
-    SilentAim_Enabled = not SilentAim_Enabled
-    if SilentAim_Enabled then
-        ToggleBtn.Text = "Aimbot: ON"
-        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+ContentFrame.Name = "Content"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+
+ToggleBtn.Name = "ToggleBtn"
+ToggleBtn.Parent = ContentFrame
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+ToggleBtn.Position = UDim2.new(0.5, -90, 0.5, -20)
+ToggleBtn.Size = UDim2.new(0, 180, 0, 40)
+ToggleBtn.AutoButtonColor = false
+ToggleBtn.Font = Enum.Font.Gotham
+ToggleBtn.Text = "Silent Aim"
+ToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+ToggleBtn.TextSize = 14
+ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+ToggleBtn.ClipsDescendants = true
+
+local padding = Instance.new("UIPadding")
+padding.PaddingLeft = UDim.new(0, 15)
+padding.Parent = ToggleBtn
+
+ToggleBtnCorner.CornerRadius = UDim.new(0, 8)
+ToggleBtnCorner.Parent = ToggleBtn
+
+ToggleIndicator.Name = "Indicator"
+ToggleIndicator.Parent = ToggleBtn
+ToggleIndicator.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ToggleIndicator.Position = UDim2.new(1, -45, 0.5, -10)
+ToggleIndicator.Size = UDim2.new(0, 30, 0, 20)
+
+ToggleIndicatorCorner.CornerRadius = UDim.new(1, 0)
+ToggleIndicatorCorner.Parent = ToggleIndicator
+
+local Switch = Instance.new("Frame")
+Switch.Name = "Switch"
+Switch.Parent = ToggleIndicator
+Switch.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Switch.Position = UDim2.new(0, 2, 0.5, -8)
+Switch.Size = UDim2.new(0, 16, 0, 16)
+
+local SwitchCorner = Instance.new("UICorner")
+SwitchCorner.CornerRadius = UDim.new(1, 0)
+SwitchCorner.Parent = Switch
+
+-- ================= DRAGGING =================
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TitleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- ================= LOGIC =================
+local function setToggle(state)
+    SilentAim_Enabled = state
+    local color = state and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(50, 50, 50)
+    local switchPos = state and UDim2.new(0, 12, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+
+    TweenService:Create(ToggleIndicator, TweenInfo.new(0.3), {BackgroundColor3 = color}):Play()
+    TweenService:Create(Switch, TweenInfo.new(0.3), {Position = switchPos}):Play()
+
+    if state then
         startRender()
     else
-        ToggleBtn.Text = "Aimbot: OFF"
-        ToggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
         stopRender()
     end
+end
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    setToggle(not SilentAim_Enabled)
+end)
+
+CloseBtn.MouseEnter:Connect(function()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 50, 50)}):Play()
+end)
+
+CloseBtn.MouseLeave:Connect(function()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
 end)
 
 CloseBtn.MouseButton1Click:Connect(function()
