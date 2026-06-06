@@ -4557,7 +4557,7 @@ local ToolAbilities = Net:WaitForChild("RF/JobToolAbilities")
 -- =========================================================
 -- CUSTOM NOTIFICATION SETUP (FULL BLACK)
 -- =========================================================
-local LogoID = "rbxassetid://18919385586"
+local LogoID = "rbxassetid://118264723961739"
 
 local function NotifyNightMystic(texto)
     task.spawn(function()
